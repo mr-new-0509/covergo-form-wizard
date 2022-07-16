@@ -1,11 +1,11 @@
 <template>
   <p class="text-4xl font-bold">Summary</p>
-  <p class="text-2xl font-bold mt-8">${name},</p>
-  <p class="text-md mt-6">Name: John</p>
-  <p class="text-md mt-3">Age: 50</p>
-  <p class="text-md mt-3">Where do you live: Hong Kong</p>
-  <p class="text-md mt-3">Package: Standard</p>
-  <p class="text-md mt-3">Premium: 500HKD</p>
+  <!-- <p class="text-2xl font-bold mt-8">${name},</p> -->
+  <p class="text-md mt-6">Name: {{ name }}</p>
+  <p class="text-md mt-3">Age: {{ age }}</p>
+  <p class="text-md mt-3">Where do you live: {{ location }}</p>
+  <p class="text-md mt-3">Package: {{ capitalizeFirstLetter(type) }}</p>
+  <p class="text-md mt-3">Premium: {{ premium }}</p>
   <div class="flex justify-center items-center mt-24">
     <router-link
       class="
@@ -40,9 +40,25 @@
         ease-in
         duration-150
       "
-      to="/summary"
+      to="/"
     >
-      Next
+      Buy
     </router-link>
   </div>
 </template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import { mapState } from "vuex";
+
+export default defineComponent({
+  computed: {
+    ...mapState("formStore", ["name", "age", "location", "type", "premium"]),
+  },
+  methods: {
+    capitalizeFirstLetter(str: string) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    },
+  },
+});
+</script>

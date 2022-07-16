@@ -1,4 +1,3 @@
-
 <template>
   <p class="text-4xl font-bold">Tell us about yourself</p>
 
@@ -147,7 +146,7 @@
       "
       @click="handleSubmit"
     >
-      Buy
+      Next
     </button>
   </div>
 </template>
