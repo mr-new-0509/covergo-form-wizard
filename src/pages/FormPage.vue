@@ -3,7 +3,7 @@
   <p class="text-4xl font-bold">Tell us about yourself</p>
 
   <div class="flex justify-center">
-    <div class="w-56">
+    <div class="w-72">
       <!-- Name input -->
       <div class="flex justify-center mt-6">
         <div class="flex flex-col items-start">
@@ -11,7 +11,7 @@
           <input
             id="name"
             name="name"
-            class="border border-gray-400 rounded-sm px-2 h-10 mt-1 w-56"
+            class="border border-gray-400 rounded-sm px-2 h-10 mt-1 w-72"
             v-model="name"
           />
         </div>
@@ -25,7 +25,7 @@
             type="number"
             id="age"
             name="age"
-            class="border border-gray-400 rounded-sm px-2 h-10 mt-1 w-56"
+            class="border border-gray-400 rounded-sm px-2 h-10 mt-1 w-72"
             min="0"
             v-model="age"
           />
@@ -39,7 +39,7 @@
           <select
             id="location"
             name="location"
-            class="border border-gray-400 rounded-sm px-2 h-10 mt-1 w-56"
+            class="border border-gray-400 rounded-sm px-2 h-10 mt-1 w-72"
             v-model="locationIndex"
           >
             <option
@@ -54,7 +54,7 @@
       </div>
 
       <!-- Type radios -->
-      <div class="flex w-56 mt-6">
+      <div class="flex w-72 mt-6">
         <input
           type="radio"
           id="standard"
@@ -65,7 +65,7 @@
         />
         <label for="standard">Standard</label>
       </div>
-      <div class="flex w-56 mt-3">
+      <div class="flex w-72 mt-3">
         <input
           type="radio"
           id="safe"
@@ -74,9 +74,17 @@
           value="safe"
           v-model="type"
         />
-        <label for="safe">Safe</label>
+        <label for="safe">
+          Safe(+
+          {{
+            (ratesOfTypes["safe"] - ratesOfTypes["standard"]) * 
+            age * 
+            locations[locationIndex].rate *
+            defaultRate
+          }}{{currency}}, {{ (ratesOfTypes["safe"] - ratesOfTypes["standard"]) * 100 }}%)
+        </label>
       </div>
-      <div class="flex w-56 mt-3">
+      <div class="flex w-72 mt-3">
         <input
           type="radio"
           id="super-safe"
@@ -85,7 +93,15 @@
           value="superSafe"
           v-model="type"
         />
-        <label for="super-safe">Super safe</label>
+        <label for="super-safe">
+          Super safe(+
+          {{
+            (ratesOfTypes["superSafe"] - ratesOfTypes["standard"]) * 
+            age * 
+            locations[locationIndex].rate *
+            defaultRate
+          }}{{currency}}, {{ (ratesOfTypes["superSafe"] - ratesOfTypes["standard"]) * 100 }}%)
+        </label>
       </div>
     </div>
   </div>
@@ -140,34 +156,40 @@
 import { defineComponent } from "vue";
 import { mapMutations } from "vuex";
 import { DATA_OF_LOCATIONS, RATES_OF_TYPES } from "../utils/data";
+import { DEFAULT_RATE } from "../utils/constants";
+import { IFormPageData } from "../utils/interfaces";
 
 export default defineComponent({
-  data: () => ({
+  data: (): IFormPageData => ({
     name: "",
     age: 0,
     locationIndex: 0,
     type: "standard",
     locations: DATA_OF_LOCATIONS,
+    ratesOfTypes: RATES_OF_TYPES,
     price: 0,
     rateByLocation: DATA_OF_LOCATIONS[0].rate,
     rateByType: RATES_OF_TYPES["standard"],
     currency: DATA_OF_LOCATIONS[0].currency,
+    defaultRate: DEFAULT_RATE,
   }),
 
   methods: {
-    ...mapMutations('formStore', ['setFormMut']),
+    ...mapMutations("formStore", ["setFormMut"]),
 
     getRateByLocation(index: number) {
       this.rateByLocation = this.locations[index].rate;
       this.currency = this.locations[index].currency;
-      this.price = this.age * this.rateByLocation * this.rateByType;
+      this.price =
+        this.age * this.rateByLocation * this.rateByType * DEFAULT_RATE;
     },
     getRateByType(type: string) {
       this.rateByType = RATES_OF_TYPES[type];
-      this.price = this.age * this.rateByLocation * this.rateByType;
+      this.price =
+        this.age * this.rateByLocation * this.rateByType * DEFAULT_RATE;
     },
     getPriceByAge(age: number) {
-      this.price = age * this.rateByLocation * this.rateByType;
+      this.price = age * this.rateByLocation * this.rateByType * DEFAULT_RATE;
     },
 
     handleSubmit() {
@@ -184,7 +206,7 @@ export default defineComponent({
             type: this.type,
             premium: `${this.price}${this.currency}`,
           });
-          this.$router.push('/summary');
+          this.$router.push("/summary");
         }
       }
     },
