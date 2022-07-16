@@ -17,7 +17,7 @@
         ease-in
         duration-150
       "
-      to="/summary"
+      to="/"
     >
       Ok :(
     </router-link>

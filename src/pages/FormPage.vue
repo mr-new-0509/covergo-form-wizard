@@ -1,3 +1,4 @@
+
 <template>
   <p class="text-4xl font-bold">Tell us about yourself</p>
 
@@ -11,6 +12,7 @@
             id="name"
             name="name"
             class="border border-gray-400 rounded-sm px-2 h-10 mt-1 w-56"
+            v-model="name"
           />
         </div>
       </div>
@@ -25,6 +27,7 @@
             name="age"
             class="border border-gray-400 rounded-sm px-2 h-10 mt-1 w-56"
             min="0"
+            v-model="age"
           />
         </div>
       </div>
@@ -37,28 +40,59 @@
             id="location"
             name="location"
             class="border border-gray-400 rounded-sm px-2 h-10 mt-1 w-56"
+            v-model="locationIndex"
           >
-            <option>Hong Kong</option>
+            <option
+              v-for="(location, index) in locations"
+              :key="location.code"
+              :value="index"
+            >
+              {{ location.name }}
+            </option>
           </select>
         </div>
       </div>
 
+      <!-- Type radios -->
       <div class="flex w-56 mt-6">
-        <input type="radio" id="standard" name="type" class="mr-2" />
+        <input
+          type="radio"
+          id="standard"
+          name="type"
+          class="mr-2"
+          value="standard"
+          v-model="type"
+        />
         <label for="standard">Standard</label>
       </div>
       <div class="flex w-56 mt-3">
-        <input type="radio" id="safe" name="type" class="mr-2" />
+        <input
+          type="radio"
+          id="safe"
+          name="type"
+          class="mr-2"
+          value="safe"
+          v-model="type"
+        />
         <label for="safe">Safe</label>
       </div>
       <div class="flex w-56 mt-3">
-        <input type="radio" id="super-safe" name="type" class="mr-2" />
+        <input
+          type="radio"
+          id="super-safe"
+          name="type"
+          class="mr-2"
+          value="superSafe"
+          v-model="type"
+        />
         <label for="super-safe">Super safe</label>
       </div>
     </div>
   </div>
 
-  <p class="text-2xl font-bold mt-12">Your premium is: 500HKD.</p>
+  <p class="text-2xl font-bold mt-12">
+    Your premium is: {{ price }}{{ currency }}.
+  </p>
 
   <div class="flex justify-center items-center mt-24">
     <router-link
@@ -80,9 +114,10 @@
     >
       Back
     </router-link>
-    <router-link
+    <button
       class="
         border border-black
+        hover:border-black
         bg-black
         hover:bg-white
         rounded-sm
@@ -94,9 +129,78 @@
         ease-in
         duration-150
       "
-      to="/summary"
+      @click="handleSubmit"
     >
-      Next
-    </router-link>
+      Buy
+    </button>
   </div>
 </template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import { mapMutations } from "vuex";
+import { DATA_OF_LOCATIONS, RATES_OF_TYPES } from "../utils/data";
+
+export default defineComponent({
+  data: () => ({
+    name: "",
+    age: 0,
+    locationIndex: 0,
+    type: "standard",
+    locations: DATA_OF_LOCATIONS,
+    price: 0,
+    rateByLocation: DATA_OF_LOCATIONS[0].rate,
+    rateByType: RATES_OF_TYPES["standard"],
+    currency: DATA_OF_LOCATIONS[0].currency,
+  }),
+
+  methods: {
+    ...mapMutations('formStore', ['setFormMut']),
+
+    getRateByLocation(index: number) {
+      this.rateByLocation = this.locations[index].rate;
+      this.currency = this.locations[index].currency;
+      this.price = this.age * this.rateByLocation * this.rateByType;
+    },
+    getRateByType(type: string) {
+      this.rateByType = RATES_OF_TYPES[type];
+      this.price = this.age * this.rateByLocation * this.rateByType;
+    },
+    getPriceByAge(age: number) {
+      this.price = age * this.rateByLocation * this.rateByType;
+    },
+
+    handleSubmit() {
+      if (this.age > 100 || this.age < 0) {
+        this.$router.push("/age-error");
+      } else {
+        if (!this.name) {
+          alert("Please input your name.");
+        } else {
+          this.setFormMut({
+            name: this.name,
+            age: this.age,
+            location: DATA_OF_LOCATIONS[this.locationIndex].name,
+            type: this.type,
+            premium: `${this.price}${this.currency}`,
+          });
+          this.$router.push('/summary');
+        }
+      }
+    },
+  },
+
+  watch: {
+    locationIndex(newLocationIndex) {
+      this.getRateByLocation(newLocationIndex);
+    },
+    type(newType) {
+      this.getRateByType(newType);
+    },
+    age(newAge) {
+      this.getPriceByAge(newAge);
+    },
+  },
+});
+</script>
+

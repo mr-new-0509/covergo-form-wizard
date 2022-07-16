@@ -22,7 +22,7 @@
         duration-150
         mr-6
       "
-      to="/"
+      to="/form"
     >
       Back
     </router-link>
