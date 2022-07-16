@@ -9,7 +9,7 @@
         border border-black
         bg-black
         hover:bg-white
-        rounded-none
+        rounded-sm
         text-white
         hover:text-black
         px-16
