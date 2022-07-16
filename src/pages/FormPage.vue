@@ -195,8 +195,8 @@ export default defineComponent({
       if (this.age > 100 || this.age < 0) {
         this.$router.push("/age-error");
       } else {
-        if (!this.name) {
-          alert("Please input your name.");
+        if (!this.name || typeof this.age == 'string') {
+          alert("Please fill all inputs.");
         } else {
           this.setFormMut({
             name: this.name,
